@@ -12,8 +12,10 @@ void kernel
     int32_t l3_outputs[L3_OUTPUT_WIDTH]
 )
 {
-#pragma HLS PIPELINE II=33
+// pipeline consisting of 33 stages, i.e. each iteration will take 33 clock cycles, but in each clock cycle a new iteration will be started while and finished
+#pragma HLS PIPELINE II=33 
 
+    // state variables for the first layer
     static uint32_t l1_iteration = 0;
     static uint16_t l1_write_col_offset = 1;
     static uint8_t l1_write_row_offset = 0;
@@ -22,6 +24,7 @@ void kernel
     static uint16_t l1_read_col_offset = 0;
     static int32_t l1_maxes[L1_KERNELS] = {0, };
 
+    // state variables for the second layer
     static uint32_t l2_iteration = 0;
     static uint16_t l2_write_col_offset = 1;
     static uint8_t l2_write_row_offset = 0;
@@ -30,8 +33,9 @@ void kernel
     static uint16_t l2_read_col_offset = 0;
     static int32_t l2_maxes[2][L2_KERNELS] = {{0, }, };
     static bool l2_maxes_idx = 0;
-    static int32_t l2_kernel_sums[L2_KERNELS] = {0, };
+    static int32_t l2_channel_sums[L2_KERNELS] = {0, };
 
+    // state variable for the third layer
     static int32_t l3_iteration = -L2_KERNELS;
 
     if ((l1_iteration & ITERATION_MASK) < (L1_STRIPE_INPUT_WIDTH * IN_CHANNELS / 4))
@@ -75,9 +79,9 @@ void kernel
         uint16_t local_col_index = l1_read_col_offset + left_offset;
 
         int32_t partial_sums[IN_CHANNELS][L1_KERNELS] = {{0, }, };
-        int32_t kernel_sums[L1_KERNELS] = {0,};
+        int32_t channel_sums[L1_KERNELS] = {0,};
     #pragma HLS ARRAY_PARTITION variable=partial_sums complete
-    #pragma HLS ARRAY_PARTITION variable=kernel_sums complete
+    #pragma HLS ARRAY_PARTITION variable=channel_sums complete
 
         for (int l = 0; l < KERNEL_SIZE; l++)
         {
@@ -107,14 +111,14 @@ void kernel
             for (int k = 0; k < L1_KERNELS; k++)
             {
             #pragma HLS latency min=5
-                kernel_sums[k] += partial_sums[j][k];
+                channel_sums[k] += partial_sums[j][k];
             }
         }
 
         for (int j = 0; j < L1_KERNELS; j++)
         {
         #pragma HLS UNROLL
-            l1_maxes[j] = kernel_sums[j] > l1_maxes[j] ? kernel_sums[j] : l1_maxes[j];
+            l1_maxes[j] = channel_sums[j] > l1_maxes[j] ? channel_sums[j] : l1_maxes[j];
         }
 
         if ((l1_iteration & L1_OUTPUT_WRITE_MASK) == L1_OUTPUT_WRITE_MASK)
@@ -169,7 +173,7 @@ void kernel
                 {
                     for (int k = 0; k < L2_KERNELS; k++)
                     {
-                        l2_kernel_sums[k] += l2_kernels[(j + channel_offset) * L2_KERNELS + k][l][m] * l2_stripes[j + channel_offset][row_idx][local_col_index + m];
+                        l2_channel_sums[k] += l2_kernels[(j + channel_offset) * L2_KERNELS + k][l][m] * l2_stripes[j + channel_offset][row_idx][local_col_index + m];
                     }
                 }
             }
@@ -179,8 +183,8 @@ void kernel
         {
             for (int j = 0; j < L2_KERNELS; j++)
             {
-                l2_maxes[l2_maxes_idx][j] = l2_kernel_sums[j] > l2_maxes[l2_maxes_idx][j] ? l2_kernel_sums[j] : l2_maxes[l2_maxes_idx][j];
-                l2_kernel_sums[j] = 0;
+                l2_maxes[l2_maxes_idx][j] = l2_channel_sums[j] > l2_maxes[l2_maxes_idx][j] ? l2_channel_sums[j] : l2_maxes[l2_maxes_idx][j];
+                l2_channel_sums[j] = 0;
             }
         }
                 

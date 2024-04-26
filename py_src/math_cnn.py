@@ -95,12 +95,12 @@ for n, (sample, expected_class) in zip(range(0, RANGE), train_generator):
     
     l1_outputs = []
     for i, group in enumerate(l1_kernels): # by each kernel in the first layer
-        kernel_sum = np.zeros((IN_HEIGHT - 2, IN_WIDTH), dtype=np.int32)
+        channel_sum = np.zeros((IN_HEIGHT - 2, IN_WIDTH), dtype=np.int32)
         for j, kernel in enumerate(group): # convolve each color channel with the kernel
             convolved = convolve2d(padded_sample[j], kernel, mode='valid')
-            kernel_sum += convolved        # cumulate the convolved matrices
+            channel_sum += convolved        # cumulate the convolved matrices
 
-        output = np.maximum(kernel_sum, 0) # ReLU activation
+        output = np.maximum(channel_sum, 0) # ReLU activation
         output = block_reduce(output, (2, 2), np.max) # max pooling
         output = (output * ZERO_POINT_SHIFT).astype(np.uint32) # shift the zero point
         l1_outputs.append(output)
@@ -111,12 +111,12 @@ for n, (sample, expected_class) in zip(range(0, RANGE), train_generator):
 
     l2_outputs = []
     for i, group in enumerate(l2_kernels): # by each kernel in the second layer
-        kernel_sum = np.zeros((L1_HEIGHT - 2, L1_WIDTH), dtype=np.int32)
+        channel_sum = np.zeros((L1_HEIGHT - 2, L1_WIDTH), dtype=np.int32)
         for j, kernel in enumerate(group): # convolve each output channel of the first layer with the kernel
             convolved = convolve2d(padded_l1_outputs[j], kernel, mode='valid')
-            kernel_sum += convolved        # cumulate the convolved matrices
+            channel_sum += convolved        # cumulate the convolved matrices
 
-        output = np.maximum(kernel_sum, 0) # ReLU activation
+        output = np.maximum(channel_sum, 0) # ReLU activation
         output = block_reduce(output, (2, 2), np.max) # max pooling
         output = (output * ZERO_POINT_SHIFT).astype(np.uint32) # shift the zero point
         l2_outputs.append(output[:L2_HEIGHT, :L2_WIDTH])
