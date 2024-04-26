@@ -30,7 +30,7 @@ train_generator = train_datagen.flow_from_directory(
 )
 
 model = get_model()
-model.load_weights("../models/cats_dogs_net.h5")
+model.load_weights("../model/cats_dogs_net.h5")
 
 l1_kernels = model.layers[1].get_weights()[0]
 l2_kernels = model.layers[4].get_weights()[0]

@@ -1,5 +1,5 @@
 # Convolution and Convolutional Layers
-The purpose of this document is to refresh the knowledge of two dimensional (2D) discrete convolution and convolutional layers in convolutional neural networks (CNNs).
+The purpose of this document is to refresh the knowledge of two-dimensional (2D) discrete convolution and convolutional layers in convolutional neural networks (CNNs).
 
 ## 2D Discrete Convolution
 Mathematically 2D discrete convolution is defined by the following equation:

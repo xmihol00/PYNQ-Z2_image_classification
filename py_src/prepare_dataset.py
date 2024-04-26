@@ -2,7 +2,7 @@ import glob
 import os
 from PIL import Image
 
-SRC_PATH = os.path.join("..", "dataset", "afhq")
+SRC_PATH = os.path.join("..", "dataset", "afhq") # path to the downloaded dataset
 DST_PATH = os.path.join("..", "dataset", "cats_and_dogs_256x256")
 
 for dataset in glob.glob(os.path.join(SRC_PATH, "*")):
@@ -16,7 +16,7 @@ for dataset in glob.glob(os.path.join(SRC_PATH, "*")):
             image_path = os.path.join(target_dir, image_name)
 
             with Image.open(img) as image:
-                image = image.resize((256, 256))
+                image = image.resize((256, 256)) # resize the image to 256x256
                 image.save(image_path)
                 print(f"Rescaled {img} to {image_path}")
             

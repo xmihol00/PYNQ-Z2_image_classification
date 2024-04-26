@@ -4,6 +4,7 @@ BATCH_SIZE = 16
 IMAGE_SIZE = (256, 256)
 
 def get_model():
+    # the network architecture, rather simple, but works well for this task
     return tf.keras.models.Sequential(
     [
         tf.keras.layers.ZeroPadding2D(padding=(0, 1), input_shape=(256, 256, 3)),

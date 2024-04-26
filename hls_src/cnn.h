@@ -11,6 +11,7 @@
     using namespace std;
 #endif
 
+// NN parameters
 #define STRIPE_HEIGHT 6
 #define STRIPE_OUTPUT_HEIGHT ((STRIPE_HEIGHT - 2) / 2)
 #define L1_STRIPE_INPUT_WIDTH 256
@@ -40,6 +41,7 @@ typedef ap_axiu<AXI_OUTPUT_WIDTH, 0, 0, 0> axis_out_t;
 
 void cnn(hls::stream<axis_in_t> &in, hls::stream<axis_weights_t> &weights, hls::stream<axis_out_t> &out);
 
+// trained kernel weights of the 1st layer
 #define KERNEL_WEIGHTS_L1 {\
         {{    7,  -57,  -20 }, {   15,   28,  101 }, {   55,   82,   34 }},\
         {{   53,   18,  -44 }, {  -95,   25,   60 }, {   70,  -18,   11 }},\
@@ -55,6 +57,7 @@ void cnn(hls::stream<axis_in_t> &in, hls::stream<axis_weights_t> &weights, hls::
         {{  -83,   -2,   38 }, {   42,    3,  -49 }, {   -9,   56,   13 }}\
     }
 
+// trained kernel weights of the 2nd layer
 #define KERNEL_WEIGHTS_L2 {\
         {{   29, -114,   50 }, {   39,  -43,  -53 }, {   87,   40,  -80 }},\
         {{   15,  -77,  -26 }, {  -81,   61,  -55 }, { -107,   32, -103 }},\

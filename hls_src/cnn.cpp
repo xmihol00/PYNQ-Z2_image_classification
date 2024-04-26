@@ -153,7 +153,7 @@ void kernel
             }
             
             l1_read_col_offset += 2; // move to the next 2x2 region in the height direction
-            if (l1_read_col_offset == L1_STRIPE_INPUT_WIDTH) // whole input row processed
+            if (l1_read_col_offset == L1_STRIPE_INPUT_WIDTH) // whole input stripe processed
             {
                 l1_read_col_offset = 0;  // move to the first column (1st value is 0 padding)
                 l1_read_row_offset += 2; // move to the next 2x2 region in the width direction
@@ -208,7 +208,7 @@ void kernel
         if ((l2_iteration & L2_OUTPUT_WRITE_MASK) == L2_OUTPUT_WRITE_MASK) // every 4th iteration
         {
             l2_read_col_offset += 2; // move to the next 2x2 region in the height direction
-            if (l2_read_col_offset == L2_STRIPE_INPUT_WIDTH) // whole input row processed
+            if (l2_read_col_offset == L2_STRIPE_INPUT_WIDTH) // whole input stripe processed
             {
                 l2_read_col_offset = 0;  // move to the first column (1st value is 0 padding)
                 l2_read_row_offset += 2; // move to the next 2x2 region in the width direction

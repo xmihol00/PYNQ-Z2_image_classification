@@ -21,7 +21,7 @@ int main()
         {
             int in_shift = n * INPUT_VALUES_PER_ITERATION;
 
-            for (int i = 0; i < INPUT_VALUES_PER_ITERATION; i += 8)
+            for (int i = 0; i < INPUT_VALUES_PER_ITERATION; i += 8) // write 2 rows to the input stream
             {
                 axis_in_t in1;
                 
@@ -37,7 +37,7 @@ int main()
                 in_stream.write(in1);
             }
 
-            if (n > 1 && n < 126)
+            if (n > 1 && n < 126) // write weights to the weights stream
             {
                 for (int i = 0; i < WEIGHT_ROWS_PER_ITERATION; i++)
                 {
@@ -60,12 +60,12 @@ int main()
                 cout << "Resetting weights index at: " << m << " " << n << endl;
             }
 
-            for (int i = 0; i < NUMBER_OF_CNN_CALLS; i++)
+            for (int i = 0; i < NUMBER_OF_CNN_CALLS; i++) // perform the inference of 1 stripe
             {   
                 cnn(in_stream, weights_stream, out_stream);
             }
 
-            if (!out_stream.empty())
+            if (!out_stream.empty()) // result is ready
             {
                 axis_out_t out;
                 out = out_stream.read();
@@ -90,7 +90,7 @@ int main()
                     for (int i = 0; i < L3_OUTPUT_SIZE; i++)
                     {
                         int output_idx = i + 112;
-                        if (output[output_idx] != predictions[predictions_idx][i])
+                        if (output[output_idx] != predictions[predictions_idx][i]) // compare the output with the expected values
                         {
                             std::cout << "FAILED AT " << i << ":\tExpected - " << predictions[predictions_idx][i] << "\t Actual - " << output[output_idx] << std::endl;
                             failed = true;

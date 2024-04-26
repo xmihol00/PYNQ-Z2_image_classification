@@ -23,7 +23,7 @@ def format_array_C(arr):
         return f"{{\\\n        {new_line.join(lines)}\\\n    }}"
 
 model = get_model()
-model.load_weights("../models/cats_dogs_net.h5")
+model.load_weights("../model/cats_dogs_net.h5")
 
 # get just the weights biases are not used
 l1_kernels = model.layers[1].get_weights()[0]
