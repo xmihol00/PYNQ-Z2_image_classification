@@ -38,16 +38,16 @@ void kernel
     // state variable for the third layer
     static int32_t l3_iteration = -L2_KERNELS;
 
-    if ((l1_iteration & ITERATION_MASK) < (L1_STRIPE_INPUT_WIDTH * IN_CHANNELS / 4))
+    if ((l1_iteration & ITERATION_MASK) < ((2 * L1_STRIPE_INPUT_WIDTH * IN_CHANNELS) / 8)) // read up to 2 rows of input data (2 * 256 * 3 = 1536 bytes)
     {
         int high = 7;
         int low = 0;
-        axis_in_t in_data = in.read();
-        for (int k = 0; k < 8; k++)
+        axis_in_t in_data = in.read(); // read 8 bytes
+        for (int k = 0; k < 8; k++) // distribute the read bytes across the 3 input color channels
         {
             l1_stripes[l1_channel_idx][l1_write_row_offset][l1_write_col_offset] = in_data.data.range(high, low);
             l1_channel_idx++;
-            if (l1_channel_idx == IN_CHANNELS)
+            if (l1_channel_idx == IN_CHANNELS) // move back to the first channel
             {
                 l1_channel_idx = 0;
                 l1_write_col_offset++;
@@ -56,10 +56,10 @@ void kernel
             low += 8;
         }
 
-        if ((l1_iteration & ITERATION_MASK) == (L1_STRIPE_INPUT_WIDTH * IN_CHANNELS / 8 - 1))
+        if ((l1_iteration & ITERATION_MASK) == (L1_STRIPE_INPUT_WIDTH * IN_CHANNELS / 8 - 1)) // whole row read 
         {
-            l1_write_row_offset += 1;
-            l1_write_col_offset = 1;
+            l1_write_row_offset += 1; // move to the next row
+            l1_write_col_offset = 1;  // move 2nd column, 1st column is always a 0 padding
         }
     }
     else if ((l1_iteration & ITERATION_MASK) == ITERATION_MASK)
