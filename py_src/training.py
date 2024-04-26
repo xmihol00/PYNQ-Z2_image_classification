@@ -2,8 +2,8 @@ import tensorflow as tf
 from net import get_model, IMAGE_SIZE, BATCH_SIZE
 import os
 
-train_dir = "../datasets/cats_and_dogs_256x256/train/"
-eval_dir = "../datasets/cats_and_dogs_256x256/val/"
+train_dir = "../dataset/cats_and_dogs_256x256/train/"
+eval_dir = "../dataset/cats_and_dogs_256x256/val/"
 
 train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1./255)
 eval_datagen = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1./255)
@@ -26,7 +26,6 @@ eval_generator = eval_datagen.flow_from_directory(
 )
 
 model = get_model()
-
 model.compile(optimizer='adam',
               loss='binary_crossentropy',
               metrics=['accuracy'])

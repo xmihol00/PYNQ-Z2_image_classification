@@ -1,0 +1,1 @@
+The used dataset is available at https://www.kaggle.com/datasets/andrewmvd/animal-faces. Extract it to this directory and use `../py_src/prepare_dataset.py` script to prepare the data for training and inference. Launch the script from its directory.
