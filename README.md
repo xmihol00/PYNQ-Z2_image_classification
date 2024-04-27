@@ -1,5 +1,5 @@
 # PYNQ-Z2 Image Classification
-Binary image classification with a CNN implemented as an FSM on an FPGA. See the `documentation` directory and read the comments in `hls_src/cnn.cpp` for more information.
+Binary classification of images with a convolutional neural network (CNN) developed for the Zynq-7000 SoC XC7Z020-1CLG400C FPGA available on the PYNQ-Z2 board. See the `documentation` directory and read the comments in `hls_src/cnn.cpp` for more information.
 
 ## Repository structure
 ```

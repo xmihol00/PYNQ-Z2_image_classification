@@ -96,21 +96,21 @@ void kernel
     #pragma HLS ARRAY_PARTITION variable=partial_sums complete
     #pragma HLS ARRAY_PARTITION variable=channel_sums complete
 
-        for (int l = 0; l < KERNEL_SIZE; l++)
+        for (int l = 0; l < KERNEL_SIZE; l++) // move across the height of the convolutional filter
         {
-            uint8_t row_idx = l1_read_row_offset + l + top_offset;
+            uint8_t row_idx = l1_read_row_offset + l + top_offset; // offset of the input patch in the heigh dimension of the input buffer
             if (row_idx >= STRIPE_HEIGHT) // row index out of range
             {
-                row_idx -= STRIPE_HEIGHT; // cycle back at the beginning of the cyclic buffer
+                row_idx -= STRIPE_HEIGHT; // cycle back at the beginning of the buffer
             }
 
-            for (int m = 0; m < KERNEL_SIZE; m++)
+            for (int m = 0; m < KERNEL_SIZE; m++) // move across the width of the convolutional filter
             {
                 uint16_t col_idx = local_col_index + m;
                 // the following for loops will be completely unrolled and the operations will be performed in parallel in the hardware
-                for (int j = 0; j < IN_CHANNELS; j++)
+                for (int j = 0; j < IN_CHANNELS; j++) // convolve all input channels
                 {
-                    for (int k = 0; k < L1_KERNELS; k++)
+                    for (int k = 0; k < L1_KERNELS; k++) // with all kernels in each filter
                     {
                         // convolution operation
                         kernel_sums[j][k] += l1_kernels[j * L1_KERNELS + k][l][m] * l1_stripes[j][row_idx][col_idx];
