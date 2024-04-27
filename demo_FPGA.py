@@ -1,8 +1,11 @@
+# useful commands:
+# sudo systemctl restart networking
+# sudo screen /dev/ttyUSB0 115200
+
 import numpy as np
 import time
 from PIL import Image
 import glob
-from IPython.display import display, clear_output
 from pynq import Clocks, Overlay, allocate
 
 INPUT_WIDTH = 256
@@ -13,7 +16,7 @@ WEIGHTS_HEIGHT = 31744
 WEIGHTS_WIDTH = 16
 
 print("Loading FPGA configuration", flush=True)
-overlay = Overlay("./cnn.bit")
+overlay = Overlay("./jupyter_notebooks/cnn/cnn.bit")
 print("FPGA configuration loaded", flush=True)
 
 print(f"CPU  running at: {Clocks.cpu_mhz} MHZ")
@@ -34,8 +37,8 @@ print("Buffers allocated", flush=True)
 in_ping_pong = False # ping-pong index to switch between input buffers
 
 print("Loading weights", flush=True)
-l4_weights = np.load("l4_weights.npy")
-l3_weights_buffer[:] = np.load("l3_weights.npy").flatten()
+l4_weights = np.load("./jupyter_notebooks/cnn/l4_weights.npy")
+l3_weights_buffer[:] = np.load("./jupyter_notebooks/cnn/l3_weights.npy").flatten()
 print("Weights loaded", flush=True)
 
 outputs = np.zeros((OUTPUT_WIDTH))
@@ -43,10 +46,10 @@ outputs = np.zeros((OUTPUT_WIDTH))
 start = time.time()
 in_buffers[in_ping_pong][:] = 0
 
-cats = glob.glob("./dataset/cats_and_dogs_256x256/train/cat/*.jpg")
+cats = glob.glob("./jupyter_notebooks/cnn/dataset/cats_and_dogs_256x256/train/cat/*.jpg")
 cats = list(zip(cats, ["CAT"] * len(cats)))
 
-dogs = glob.glob("./dataset/cats_and_dogs_256x256/train/dog/*.jpg")
+dogs = glob.glob("./jupyter_notebooks/cnn/dataset/cats_and_dogs_256x256/train/dog/*.jpg")
 dogs = list(zip(dogs, ["DOG"] * len(dogs)))
 
 images = cats + dogs
@@ -56,7 +59,7 @@ print("Initiating transfer with empty buffer", flush=True)
 dma_inputs.sendchannel.transfer(in_buffers[in_ping_pong])
 dma_weights.sendchannel.transfer(l3_weights_buffer)
 
-MAX_ITERATIONS = 10
+MAX_ITERATIONS = 100000
 CLEAR_OUTPUT = False # set to True for larger number of iterations
 accuracy = 0
 counter = 0
@@ -83,10 +86,12 @@ for (sample, expected_class), i in zip(images, range(MAX_ITERATIONS)):
     accuracy += classified == last_expected_class
     last_expected_class = expected_class
     counter += 1
+    if counter % 100 == 0:
+        print(f"Classified {counter} images out of {len(images)}")
 
 time_taken = time.time() - start
 print(f"Classified {counter} images in {time_taken} seconds with {counter / time_taken} FPS")
-print(f"Accuracy: {accuracy / MAX_ITERATIONS * 100} %")
+print(f"Accuracy: {accuracy / counter * 100} %")
 
 dma_inputs.recvchannel.transfer(out_buffer)
 
